@@ -29,7 +29,8 @@ const cron = require("node-cron");
 const bodyParser = require("body-parser");
 const User = require("./model/user");
 const dataweb = require("./model/DataWeb");
-
+const fs = require("fs-extra");
+const path = "./data.json";
 //_______________________ ┏ Funtion ┓ _______________________\\
 
 async function resetapi() {
@@ -59,20 +60,47 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //_______________________ ┏ Connect Database ┓ _______________________\\
+// Pastikan file `data.json` ada
+if (!fs.existsSync(path)) {
+  // Jika file tidak ada, buat dengan data awal
+  fs.writeFileSync(
+    path,
+    JSON.stringify({ RequestToday: 0 }, null, 2),
+    "utf-8"
+  );
+  console.log("DATA WEBSITE Success Created!");
+} else {
+  console.log("File data.json sudah ada.");
+}
 
-mongoose.set("strictQuery", false);
-mongoose
-  .connect(keymongodb, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(async () => {
-    console.log("Connected !");
-    let limit = await dataweb.findOne();
-    if (limit === null) {
-      let obj = { RequestToday: 0 };
-      await dataweb.create(obj);
-      console.log("DATA WEBSITE Sussces Create");
-    }
-  });
+// Fungsi untuk membaca data dari file JSON
+function getData() {
+  const data = fs.readFileSync(path, "utf-8");
+  return JSON.parse(data);
+}
 
+// Fungsi untuk menyimpan data ke file JSON
+function saveData(newData) {
+  fs.writeFileSync(path, JSON.stringify(newData, null, 2), "utf-8");
+  console.log("Data berhasil diperbarui!");
+}
+
+// Contoh Penggunaan
+(async () => {
+  console.log("Connected!");
+  let data = getData();
+
+  if (data.RequestToday === undefined) {
+    data.RequestToday = 0;
+    saveData(data);
+    console.log("DATA WEBSITE Success Updated!");
+  }
+
+  // Ubah RequestToday
+  data.RequestToday += 1;
+  saveData(data);
+  console.log("RequestToday Updated to:", data.RequestToday);
+})();
 //_______________________ ┏ CronJob For Reset Limit ┓ _______________________\\
 
 // Reset Request Today Setiap sehari
