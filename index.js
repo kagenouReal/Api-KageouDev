@@ -30,7 +30,7 @@ const bodyParser = require("body-parser");
 const User = require("./model/user");
 const dataweb = require("./model/DataWeb");
 const fs = require("fs-extra");
-const path = "./data.json";
+const kontol = "./data.json";
 //_______________________ ┏ Funtion ┓ _______________________\\
 
 async function resetapi() {
@@ -61,10 +61,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 //_______________________ ┏ Connect Database ┓ _______________________\\
 // Pastikan file `data.json` ada
-if (!fs.existsSync(path)) {
+if (!fs.existsSync(kontol)) {
   // Jika file tidak ada, buat dengan data awal
   fs.writeFileSync(
-    path,
+    kontol,
     JSON.stringify({ RequestToday: 0 }, null, 2),
     "utf-8"
   );
@@ -75,13 +75,13 @@ if (!fs.existsSync(path)) {
 
 // Fungsi untuk membaca data dari file JSON
 function getData() {
-  const data = fs.readFileSync(path, "utf-8");
+  const data = fs.readFileSync(kontol, "utf-8");
   return JSON.parse(data);
 }
 
 // Fungsi untuk menyimpan data ke file JSON
 function saveData(newData) {
-  fs.writeFileSync(path, JSON.stringify(newData, null, 2), "utf-8");
+  fs.writeFileSync(kontol, JSON.stringify(newData, null, 2), "utf-8");
   console.log("Data berhasil diperbarui!");
 }
 
